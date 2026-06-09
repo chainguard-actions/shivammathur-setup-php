@@ -1,0 +1,33 @@
+name: Test PHP setup with version file and tools
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create .php-version file
+        run: echo "8.1" > .php-version
+      - id: action
+        uses: .
+        with:
+          php-version-file: '.php-version'
+          tools: 'composer'
+      - name: Assert php-version output is set
+        env:
+          ACTUAL: ${{ steps.action.outputs.php-version }}
+        run: |
+          echo "actual: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: expected php-version output to be non-empty"
+            exit 1
+          fi
+          echo "PASS: php-version output = $ACTUAL"
+      - name: Assert PHP is installed
+        run: |
+          php --version
+          echo "PASS: PHP is installed"
+      - name: Assert composer is installed
+        run: |
+          composer --version
+          echo "PASS: composer is installed"

@@ -1,4 +1,4 @@
-name: Test basic PHP setup
+name: Test PHP setup with ini-values and coverage
 on:
   workflow_dispatch:
 jobs:
@@ -9,8 +9,9 @@ jobs:
       - id: action
         uses: .
         with:
-          php-version: '8.2'
-          extensions: 'mbstring, curl'
+          php-version: '8.1'
+          ini-values: 'memory_limit=256M, max_execution_time=30'
+          coverage: 'none'
       - name: Assert php-version output
         env:
           ACTUAL: ${{ steps.action.outputs.php-version }}

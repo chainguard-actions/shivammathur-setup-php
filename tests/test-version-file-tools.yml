@@ -1,4 +1,4 @@
-name: Test basic PHP setup
+name: Test PHP setup with php-version-file and tools
 on:
   workflow_dispatch:
 jobs:
@@ -6,11 +6,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create .php-version file
+        run: echo "8.3" > .php-version
       - id: action
         uses: .
         with:
-          php-version: '8.2'
-          extensions: 'mbstring, curl'
+          php-version-file: '.php-version'
+          tools: 'composer'
       - name: Assert php-version output
         env:
           ACTUAL: ${{ steps.action.outputs.php-version }}
@@ -25,3 +27,7 @@ jobs:
         run: |
           php --version
           echo "PASS: PHP is installed"
+      - name: Assert composer is installed
+        run: |
+          composer --version
+          echo "PASS: composer is installed"

@@ -1,0 +1,51 @@
+name: Test basic PHP setup
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup-php
+        uses: .
+        with:
+          php-version: '8.2'
+          extensions: 'mbstring, curl'
+          ini-values: 'memory_limit=256M'
+          coverage: 'none'
+      - name: Assert php-version output is set
+        env:
+          ACTUAL: ${{ steps.setup-php.outputs.php-version }}
+        run: |
+          echo "actual php-version: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: php-version output is empty"
+            exit 1
+          fi
+          echo "PASS: php-version output is '$ACTUAL'"
+      - name: Assert PHP is installed and correct version
+        run: |
+          php --version
+          PHP_VER=$(php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;')
+          echo "PHP version: $PHP_VER"
+          if [ "$PHP_VER" != "8.2" ]; then
+            echo "FAIL: expected PHP 8.2, got $PHP_VER"
+            exit 1
+          fi
+          echo "PASS"
+      - name: Assert mbstring extension is loaded
+        run: |
+          if ! php -m | grep -q mbstring; then
+            echo "FAIL: mbstring extension not loaded"
+            exit 1
+          fi
+          echo "PASS: mbstring is loaded"
+      - name: Assert ini-values applied
+        run: |
+          MEM=$(php -r 'echo ini_get("memory_limit");')
+          echo "memory_limit: $MEM"
+          if [ "$MEM" != "256M" ]; then
+            echo "FAIL: expected memory_limit=256M, got $MEM"
+            exit 1
+          fi
+          echo "PASS"

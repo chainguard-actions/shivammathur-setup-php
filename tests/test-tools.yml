@@ -1,4 +1,4 @@
-name: Test basic PHP setup
+name: Test PHP setup with tools
 on:
   workflow_dispatch:
 jobs:
@@ -10,6 +10,7 @@ jobs:
         uses: .
         with:
           php-version: '8.2'
+          tools: 'composer'
       - name: Assert php-version output is set
         env:
           ACTUAL: ${{ steps.action.outputs.php-version }}
@@ -24,3 +25,7 @@ jobs:
         run: |
           php --version
           echo "PASS: PHP is installed"
+      - name: Assert composer is installed
+        run: |
+          composer --version
+          echo "PASS: composer is installed"

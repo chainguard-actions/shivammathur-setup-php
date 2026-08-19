@@ -10,42 +10,27 @@ jobs:
         uses: .
         with:
           php-version: '8.2'
-          extensions: 'mbstring, curl'
-          ini-values: 'memory_limit=256M'
-          coverage: 'none'
       - name: Assert php-version output is set
         env:
-          ACTUAL: ${{ steps.setup-php.outputs.php-version }}
+          PHP_VERSION_OUTPUT: ${{ steps.setup-php.outputs.php-version }}
         run: |
-          echo "actual php-version: $ACTUAL"
-          if [ -z "$ACTUAL" ]; then
+          echo "php-version output: $PHP_VERSION_OUTPUT"
+          if [ -z "$PHP_VERSION_OUTPUT" ]; then
             echo "FAIL: php-version output is empty"
             exit 1
           fi
-          echo "PASS: php-version output is '$ACTUAL'"
-      - name: Assert PHP is installed and correct version
+          echo "PASS: php-version output is set to $PHP_VERSION_OUTPUT"
+      - name: Assert PHP binary is available
         run: |
+          which php || { echo "FAIL: php not found in PATH"; exit 1; }
           php --version
-          PHP_VER=$(php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;')
-          echo "PHP version: $PHP_VER"
-          if [ "$PHP_VER" != "8.2" ]; then
-            echo "FAIL: expected PHP 8.2, got $PHP_VER"
-            exit 1
-          fi
-          echo "PASS"
-      - name: Assert mbstring extension is loaded
+          echo "PASS: php binary is available"
+      - name: Assert PHP version matches requested
         run: |
-          if ! php -m | grep -q mbstring; then
-            echo "FAIL: mbstring extension not loaded"
+          ACTUAL=$(php -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;")
+          echo "actual PHP version: $ACTUAL"
+          if [ "$ACTUAL" != "8.2" ]; then
+            echo "FAIL: expected PHP 8.2 but got $ACTUAL"
             exit 1
           fi
-          echo "PASS: mbstring is loaded"
-      - name: Assert ini-values applied
-        run: |
-          MEM=$(php -r 'echo ini_get("memory_limit");')
-          echo "memory_limit: $MEM"
-          if [ "$MEM" != "256M" ]; then
-            echo "FAIL: expected memory_limit=256M, got $MEM"
-            exit 1
-          fi
-          echo "PASS"
+          echo "PASS: PHP version is 8.2"

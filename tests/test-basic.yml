@@ -6,21 +6,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - id: action
+      - id: setup-php
         uses: .
         with:
           php-version: '8.2'
-      - name: Assert php-version output
+      - name: Assert php-version output is set
         env:
-          ACTUAL: ${{ steps.action.outputs.php-version }}
+          PHP_VERSION: ${{ steps.setup-php.outputs.php-version }}
         run: |
-          echo "actual: $ACTUAL"
-          if [ -z "$ACTUAL" ]; then
+          echo "php-version output: $PHP_VERSION"
+          if [ -z "$PHP_VERSION" ]; then
             echo "FAIL: php-version output is empty"
             exit 1
           fi
-          echo "PASS: php-version output is $ACTUAL"
-      - name: Assert PHP is installed
+          echo "PASS: php-version output is '$PHP_VERSION'"
+      - name: Assert PHP binary is available
         run: |
+          which php || { echo "FAIL: php not found in PATH"; exit 1; }
           php --version
-          echo "PASS: PHP is installed"
+          echo "PASS: php binary is available"
+      - name: Assert PHP version matches requested
+        run: |
+          ACTUAL=$(php -r "echo PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;")
+          echo "actual PHP version: $ACTUAL"
+          if [ "$ACTUAL" != "8.2" ]; then
+            echo "FAIL: expected PHP 8.2, got $ACTUAL"
+            exit 1
+          fi
+          echo "PASS: PHP version is $ACTUAL"

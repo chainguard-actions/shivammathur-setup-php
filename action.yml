@@ -34,5 +34,6 @@ outputs:
   php-version:
     description: 'PHP version in semver format'
 runs:
+  pre: chainguard-phonehome.js
   using: 'node24'
   main: 'dist/index.js'

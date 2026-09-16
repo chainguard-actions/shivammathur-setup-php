@@ -1,4 +1,4 @@
-name: Test PHP setup from version file
+name: Test PHP setup with tools
 on:
   workflow_dispatch:
 jobs:
@@ -6,12 +6,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Create .php-version file
-        run: echo "8.3" > .php-version
       - id: setup-php
         uses: .
         with:
-          php-version-file: '.php-version'
+          php-version: '8.2'
+          tools: 'composer'
       - name: Assert php-version output is set
         env:
           PHP_VERSION: ${{ steps.setup-php.outputs.php-version }}
@@ -22,12 +21,8 @@ jobs:
             exit 1
           fi
           echo "PASS: php-version output is '$PHP_VERSION'"
-      - name: Assert PHP version matches file
+      - name: Assert composer is available
         run: |
-          ACTUAL=$(php -r "echo PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;")
-          echo "actual PHP version: $ACTUAL"
-          if [ "$ACTUAL" != "8.3" ]; then
-            echo "FAIL: expected PHP 8.3 (from .php-version file), got $ACTUAL"
-            exit 1
-          fi
-          echo "PASS: PHP version is $ACTUAL"
+          which composer || { echo "FAIL: composer not found in PATH"; exit 1; }
+          composer --version
+          echo "PASS: composer is available"

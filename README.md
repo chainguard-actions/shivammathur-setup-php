@@ -11,6 +11,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | 2.37.0 | [`2.37.0`](https://github.com/chainguard-actions/shivammathur-setup-php/tree/2.37.0) | [`accd612`](https://github.com/shivammathur/setup-php/commit/accd6127cb78bee3e8082180cb391013d204ef9f) |
 | 2.37.1 | [`2.37.1`](https://github.com/chainguard-actions/shivammathur-setup-php/tree/2.37.1) | [`7c071df`](https://github.com/shivammathur/setup-php/commit/7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc) |
 | 2.37.2 | [`2.37.2`](https://github.com/chainguard-actions/shivammathur-setup-php/tree/2.37.2) | [`f3e473d`](https://github.com/shivammathur/setup-php/commit/f3e473d116dcccaddc5834248c87452386958240) |
+| 2.40.0-beta | [`2.40.0-beta`](https://github.com/chainguard-actions/shivammathur-setup-php/tree/2.40.0-beta) | [`bc12f5c`](https://github.com/shivammathur/setup-php/commit/bc12f5cef4c73a871331e196ff380d38232ba293) |
 
 ## Privacy
 

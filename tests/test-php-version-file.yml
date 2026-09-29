@@ -1,0 +1,41 @@
+name: Test php-version-file input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create PHP version file
+        run: echo "8.2" > "$GITHUB_WORKSPACE/.php-version"
+      - id: action
+        uses: .
+        with:
+          php-version-file: .php-version
+          coverage: none
+      - name: Assert php-version output is set
+        env:
+          PHP_VERSION: ${{ steps.action.outputs.php-version }}
+        run: |
+          echo "php-version: $PHP_VERSION"
+          if [ -z "$PHP_VERSION" ]; then
+            echo "FAIL: php-version output is empty"
+            exit 1
+          fi
+          echo "PASS: php-version is '$PHP_VERSION'"
+      - name: Assert PHP binary is available
+        run: |
+          php --version
+          echo "PASS: php binary is available"
+      - name: Assert PHP version matches file
+        env:
+          PHP_VERSION: ${{ steps.action.outputs.php-version }}
+        run: |
+          echo "Expected version from file: 8.2"
+          echo "Actual version output: $PHP_VERSION"
+          if echo "$PHP_VERSION" | grep -qE '^8\.2'; then
+            echo "PASS: PHP version matches .php-version file"
+          else
+            echo "FAIL: PHP version '$PHP_VERSION' does not start with 8.2"
+            exit 1
+          fi

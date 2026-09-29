@@ -1,0 +1,41 @@
+name: Test PHP setup with ini-values
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup-php
+        uses: .
+        with:
+          php-version: '8.2'
+          ini-values: 'memory_limit=256M, post_max_size=128M'
+      - name: Assert php-version output is set
+        env:
+          PHP_VERSION: ${{ steps.setup-php.outputs.php-version }}
+        run: |
+          echo "php-version output: $PHP_VERSION"
+          if [ -z "$PHP_VERSION" ]; then
+            echo "FAIL: php-version output is empty"
+            exit 1
+          fi
+          echo "PASS: php-version output is '$PHP_VERSION'"
+      - name: Assert memory_limit ini value is set
+        run: |
+          MEMORY_LIMIT=$(php -r 'echo ini_get("memory_limit");')
+          echo "memory_limit: $MEMORY_LIMIT"
+          if [ "$MEMORY_LIMIT" != "256M" ]; then
+            echo "FAIL: expected memory_limit=256M but got $MEMORY_LIMIT"
+            exit 1
+          fi
+          echo "PASS: memory_limit is $MEMORY_LIMIT"
+      - name: Assert post_max_size ini value is set
+        run: |
+          POST_MAX=$(php -r 'echo ini_get("post_max_size");')
+          echo "post_max_size: $POST_MAX"
+          if [ "$POST_MAX" != "128M" ]; then
+            echo "FAIL: expected post_max_size=128M but got $POST_MAX"
+            exit 1
+          fi
+          echo "PASS: post_max_size is $POST_MAX"

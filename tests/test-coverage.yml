@@ -1,0 +1,30 @@
+name: Test PHP setup with coverage driver
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup-php
+        uses: .
+        with:
+          php-version: '8.2'
+          coverage: 'xdebug'
+      - name: Assert php-version output is set
+        env:
+          PHP_VERSION: ${{ steps.setup-php.outputs.php-version }}
+        run: |
+          echo "php-version output: $PHP_VERSION"
+          if [ -z "$PHP_VERSION" ]; then
+            echo "FAIL: php-version output is empty"
+            exit 1
+          fi
+          echo "PASS: php-version output is '$PHP_VERSION'"
+      - name: Assert xdebug extension is loaded
+        run: |
+          if ! php -m | grep -qi 'xdebug'; then
+            echo "FAIL: xdebug extension not loaded"
+            exit 1
+          fi
+          echo "PASS: xdebug extension is loaded"

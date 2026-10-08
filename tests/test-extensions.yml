@@ -1,0 +1,41 @@
+name: Test PHP setup with extensions
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup-php
+        uses: .
+        with:
+          php-version: '8.1'
+          extensions: 'mbstring, curl, json'
+      - name: Assert php-version output is set
+        env:
+          PHP_VERSION_OUTPUT: ${{ steps.setup-php.outputs.php-version }}
+        run: |
+          echo "php-version output: $PHP_VERSION_OUTPUT"
+          if [ -z "$PHP_VERSION_OUTPUT" ]; then
+            echo "FAIL: php-version output is empty"
+            exit 1
+          fi
+          echo "PASS: php-version output is '$PHP_VERSION_OUTPUT'"
+      - name: Assert extensions are loaded
+        run: |
+          echo "Checking mbstring extension..."
+          if ! php -m | grep -q "mbstring"; then
+            echo "FAIL: mbstring extension not loaded"
+            exit 1
+          fi
+          echo "Checking curl extension..."
+          if ! php -m | grep -q "curl"; then
+            echo "FAIL: curl extension not loaded"
+            exit 1
+          fi
+          echo "Checking json extension..."
+          if ! php -m | grep -q "json"; then
+            echo "FAIL: json extension not loaded"
+            exit 1
+          fi
+          echo "PASS: all requested extensions are loaded"

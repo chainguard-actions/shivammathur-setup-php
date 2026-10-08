@@ -1,0 +1,36 @@
+name: Test PHP setup from version file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create PHP version file
+        run: |
+          echo "8.1" > "$GITHUB_WORKSPACE/.php-version"
+          cat "$GITHUB_WORKSPACE/.php-version"
+      - id: setup-php
+        uses: .
+        with:
+          php-version-file: '.php-version'
+      - name: Assert php-version output is set
+        env:
+          PHP_VERSION_OUTPUT: ${{ steps.setup-php.outputs.php-version }}
+        run: |
+          echo "php-version output: $PHP_VERSION_OUTPUT"
+          if [ -z "$PHP_VERSION_OUTPUT" ]; then
+            echo "FAIL: php-version output is empty"
+            exit 1
+          fi
+          echo "PASS: php-version output is '$PHP_VERSION_OUTPUT'"
+      - name: Assert PHP version matches file
+        run: |
+          INSTALLED=$(php -r "echo PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;")
+          echo "Installed PHP version: $INSTALLED"
+          echo "Expected: 8.1"
+          if [[ "$INSTALLED" != "8.1" ]]; then
+            echo "FAIL: expected PHP 8.1 (from version file) but got $INSTALLED"
+            exit 1
+          fi
+          echo "PASS: PHP version matches .php-version file"
